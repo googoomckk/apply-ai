@@ -6,6 +6,14 @@ const PORT = process.env.PORT || 3000;
 
 console.log(`Starting ApplyAI MVP Server on port ${PORT}...`);
 
+function cleanJsonString(str: string): string {
+  let cleaned = str.trim();
+  // Strip markdown backticks wrapping
+  cleaned = cleaned.replace(/^```(?:json)?\s*/i, "");
+  cleaned = cleaned.replace(/\s*```$/, "");
+  return cleaned.trim();
+}
+
 serve({
   port: PORT,
   async fetch(req) {
@@ -79,7 +87,10 @@ serve({
 Compare the CV/Resume against the Job Description.
 Provide an honest, constructive, and detailed evaluation. Identify all key skills mentioned in the job description, and classify them as matched or missing. Point out specific strengths, gaps, and give concrete suggestions on how to rewrite resume bullet points to improve the match. Also, prepare custom interview questions based on the candidate's gaps.
 
-You MUST respond with a raw JSON object matching this schema structure:
+You MUST respond with a raw JSON object matching this schema structure.
+Do NOT wrap your response in markdown code blocks or backticks (e.g. do NOT use \`\`\` or \`\`\`json). Just return the raw JSON object structure.
+
+Schema:
 {
   "score": number (0 to 100),
   "fitLevel": "Excellent Match" | "Strong Match" | "Good Match" | "Fair Match" | "Needs Work",
@@ -115,7 +126,8 @@ ${jobDescription}
         } as any);
 
         console.log("Comparison completed successfully.");
-        const parsedData = JSON.parse(result.text);
+        const cleanedText = cleanJsonString(result.text);
+        const parsedData = JSON.parse(cleanedText);
         return Response.json(parsedData, { headers });
       } catch (err: any) {
         console.error("Comparison error:", err);
