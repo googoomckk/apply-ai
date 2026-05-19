@@ -301,22 +301,6 @@ export default function DashboardSection({ onBack }: { onBack: () => void }) {
                 });
                 setIsAddJobOpen(true);
               }}
-              onAICheckClick={() => {
-                if (resumes.length === 0) {
-                  setError('You need to add at least one Resume template before starting an analysis.');
-                  return;
-                }
-                setNewJob({
-                  company: '',
-                  role: '',
-                  status: 'wishlist',
-                  url: '',
-                  jobDescription: '',
-                  selectedResumeId: resumes.find(r => r.isDefault)?.id || resumes[0]?.id || '',
-                  analyzeImmediately: true,
-                });
-                setIsAddJobOpen(true);
-              }}
               onMatchClick={(job) => {
                 setEditingJob(job);
                 setNewJob({

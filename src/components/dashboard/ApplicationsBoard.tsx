@@ -9,7 +9,6 @@ interface ApplicationsBoardProps {
   jobs: JobApplication[];
   resumes: Resume[];
   onAddJobClick: () => void;
-  onAICheckClick: () => void;
   onMatchClick: (job: JobApplication) => void;
   onViewAnalysisClick: (jobId: string) => void;
   onUpdateJobStatus: (id: string, status: JobApplication['status']) => void;
@@ -20,7 +19,6 @@ export default function ApplicationsBoard({
   jobs,
   resumes,
   onAddJobClick,
-  onAICheckClick,
   onMatchClick,
   onViewAnalysisClick,
   onUpdateJobStatus,
@@ -62,16 +60,6 @@ export default function ApplicationsBoard({
           <p className="text-xs text-[var(--text-muted)]">Track your target roles and evaluate compatibility</p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="md"
-            onClick={onAICheckClick}
-            className="flex items-center gap-1.5 shadow-sm text-xs"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[var(--accent-cyan)] fill-[var(--accent-cyan)]/15" />
-            AI Compare Match
-          </Button>
-
           <Button
             variant="primary"
             size="md"
