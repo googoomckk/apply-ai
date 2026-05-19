@@ -74,7 +74,7 @@ serve({
 
         const result = await generateText({
           model,
-          responseFormat: { type: "json_object" },
+          experimental_responseFormat: { type: "json_object" },
           system: `You are an expert technical recruiter and resume optimization system.
 Compare the CV/Resume against the Job Description.
 Provide an honest, constructive, and detailed evaluation. Identify all key skills mentioned in the job description, and classify them as matched or missing. Point out specific strengths, gaps, and give concrete suggestions on how to rewrite resume bullet points to improve the match. Also, prepare custom interview questions based on the candidate's gaps.
@@ -112,7 +112,7 @@ Job Description:
 """
 ${jobDescription}
 """`,
-        });
+        } as any);
 
         console.log("Comparison completed successfully.");
         const parsedData = JSON.parse(result.text);
