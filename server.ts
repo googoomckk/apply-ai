@@ -1,7 +1,6 @@
 import { serve } from "bun";
 import { createGroq } from "@ai-sdk/groq";
-import { generateObject } from "ai";
-import { z } from "zod";
+import { generateText } from "ai";
 
 const PORT = process.env.PORT || 3000;
 
@@ -73,40 +72,37 @@ serve({
 
         const model = groqProvider("llama-3.3-70b-versatile");
 
-        const result = await generateObject({
+        const result = await generateText({
           model,
-          schema: z.object({
-            score: z.number().min(0).max(100),
-            fitLevel: z.enum([
-              "Excellent Match",
-              "Strong Match",
-              "Good Match",
-              "Fair Match",
-              "Needs Work",
-            ]),
-            summary: z.string(),
-            matchedKeywords: z.array(z.string()),
-            missingKeywords: z.array(z.string()),
-            strengths: z.array(z.string()),
-            gaps: z.array(z.string()),
-            suggestions: z.array(
-              z.object({
-                section: z.string(),
-                original: z.string(),
-                suggested: z.string(),
-                rationale: z.string(),
-              })
-            ),
-            interviewPrep: z.array(
-              z.object({
-                question: z.string(),
-                strategy: z.string(),
-              })
-            ),
-          }),
+          responseFormat: { type: "json_object" },
           system: `You are an expert technical recruiter and resume optimization system.
 Compare the CV/Resume against the Job Description.
-Provide an honest, constructive, and detailed evaluation. Identify all key skills mentioned in the job description, and classify them as matched or missing. Point out specific strengths, gaps, and give concrete suggestions on how to rewrite resume bullet points to improve the match. Also, prepare custom interview questions based on the candidate's gaps.`,
+Provide an honest, constructive, and detailed evaluation. Identify all key skills mentioned in the job description, and classify them as matched or missing. Point out specific strengths, gaps, and give concrete suggestions on how to rewrite resume bullet points to improve the match. Also, prepare custom interview questions based on the candidate's gaps.
+
+You MUST respond with a raw JSON object matching this schema structure:
+{
+  "score": number (0 to 100),
+  "fitLevel": "Excellent Match" | "Strong Match" | "Good Match" | "Fair Match" | "Needs Work",
+  "summary": "detailed summary string",
+  "matchedKeywords": ["keyword1", "keyword2", ...],
+  "missingKeywords": ["keyword3", "keyword4", ...],
+  "strengths": ["strength1", ...],
+  "gaps": ["gap1", ...],
+  "suggestions": [
+    {
+      "section": "Experience" | "Skills" | "Summary" | etc,
+      "original": "original bullet point",
+      "suggested": "suggested updated bullet point",
+      "rationale": "why this change helps"
+    }
+  ],
+  "interviewPrep": [
+    {
+      "question": "interview question",
+      "strategy": "how to answer"
+    }
+  ]
+}`,
           prompt: `Resume/CV:
 """
 ${resumeText}
@@ -119,7 +115,8 @@ ${jobDescription}
         });
 
         console.log("Comparison completed successfully.");
-        return Response.json(result.object, { headers });
+        const parsedData = JSON.parse(result.text);
+        return Response.json(parsedData, { headers });
       } catch (err: any) {
         console.error("Comparison error:", err);
         return Response.json(
