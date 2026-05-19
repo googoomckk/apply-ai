@@ -28,11 +28,7 @@ export default function App() {
           <Footer />
         </>
       ) : (
-        <>
-          <Navbar onStartDashboard={() => setCurrentView('dashboard')} isDashboard />
-          <DashboardSection onBack={() => setCurrentView('landing')} />
-          <Footer />
-        </>
+        <DashboardSection onBack={() => setCurrentView('landing')} />
       )}
     </main>
   );
