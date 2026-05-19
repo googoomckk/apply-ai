@@ -5,7 +5,7 @@ import DotGridBackground from './graphics/DotGridBackground';
 import KanbanPreview from './graphics/KanbanPreview';
 import ResumeMatchWidget from './graphics/ResumeMatchWidget';
 import AnalyticsWidget from './graphics/AnalyticsWidget';
-import { Pin, Sparkles, ArrowRight, Play } from 'lucide-react';
+import { Pin, Sparkles, ArrowRight } from 'lucide-react';
 import {
   staggerContainer,
   fadeInUpGentle,
@@ -136,13 +136,24 @@ export default function HeroSection({ onStartDashboard }: { onStartDashboard?: (
             variants={fadeInUpGentle}
             className="flex flex-wrap items-center justify-center gap-4 mt-8"
           >
-            <Button variant="primary" size="lg" onClick={onStartDashboard} className="group shadow-md hover:shadow-lg transition-all duration-200">
-              Launch Matcher MVP
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={onStartDashboard}
+              className="group shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              Open Dashboard
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
-            <Button variant="outline" size="lg" onClick={onStartDashboard} className="group shadow-sm hover:shadow-md transition-all duration-200">
-              <Play className="w-4 h-4 fill-current transition-transform group-hover:scale-110" />
-              Open Dashboard
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                document.getElementById('solutions')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="group shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              Explore Features
             </Button>
           </motion.div>
 
