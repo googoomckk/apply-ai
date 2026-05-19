@@ -30,6 +30,7 @@ export interface JobApplication {
   jobDescription?: string;
   matchScore?: number;
   analysisResult?: ComparisonResult;
+  resumeUsed?: string;
 }
 
 export interface Resume {
