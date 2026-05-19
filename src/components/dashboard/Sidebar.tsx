@@ -1,4 +1,4 @@
-import { LayoutGrid, FileText, Sparkles, ArrowLeft } from 'lucide-react';
+import { LayoutGrid, FileText, ArrowLeft } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: 'jobs' | 'resumes';
@@ -12,8 +12,11 @@ export default function Sidebar({ activeTab, isViewingAnalysis, onTabChange, onB
     <aside className="w-64 bg-white border-r border-[var(--border)] flex flex-col shrink-0">
       {/* Brand */}
       <div className="p-6 border-b border-[var(--border)] flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--accent)] to-[var(--accent-cyan)] flex items-center justify-center shadow-md">
-          <Sparkles className="w-5 h-5 text-white" />
+        <div className="w-8 h-8 grid grid-cols-2 gap-1 shrink-0">
+          <div className="w-3 h-3 rounded-full bg-[var(--accent)]" />
+          <div className="w-3 h-3 rounded-full bg-[var(--accent-cyan)]" />
+          <div className="w-3 h-3 rounded-full bg-[var(--accent-yellow)]" />
+          <div className="w-3 h-3 rounded-full bg-[var(--accent)]" />
         </div>
         <div>
           <h1 className="font-display font-extrabold text-base text-[var(--text-heading)] leading-none">ApplyAI</h1>
