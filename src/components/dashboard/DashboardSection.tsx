@@ -6,6 +6,7 @@ import Sidebar from './Sidebar';
 import ApplicationsBoard from './ApplicationsBoard';
 import ResumeTemplates from './ResumeTemplates';
 import MatchAnalysisDetail from './MatchAnalysisDetail';
+import AddApplicationModal from './AddApplicationModal';
 import { Sparkle, AlertTriangle } from 'lucide-react';
 
 const LOADING_PHASES = [
@@ -41,16 +42,17 @@ export default function DashboardSection({ onBack }: { onBack: () => void }) {
   const [editingResume, setEditingResume] = useState<Resume | null>(null);
   const [editingJob, setEditingJob] = useState<JobApplication | null>(null);
 
-  // Form states
-  const [newJob, setNewJob] = useState({
-    company: '',
-    role: '',
-    status: 'wishlist' as JobApplication['status'],
-    url: '',
-    jobDescription: '',
-    selectedResumeId: '',
-    analyzeImmediately: false,
-  });
+  // Form states for matching/evaluating an existing job
+  const [evaluateResumeId, setEvaluateResumeId] = useState('');
+  const [evaluateJobDescription, setEvaluateJobDescription] = useState('');
+
+  useEffect(() => {
+    if (editingJob) {
+      const defaultResume = resumes.find(r => r.id === editingJob.resumeUsed) || resumes.find(r => r.isDefault) || resumes[0];
+      setEvaluateResumeId(defaultResume?.id || '');
+      setEvaluateJobDescription(editingJob.jobDescription || '');
+    }
+  }, [editingJob, resumes]);
 
   const [newResume, setNewResume] = useState({
     name: '',
@@ -62,14 +64,6 @@ export default function DashboardSection({ onBack }: { onBack: () => void }) {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingPhase, setLoadingPhase] = useState(0);
   const [error, setError] = useState<string | null>(null);
-
-  // Sync selectedResumeId with default resume when resumes change
-  useEffect(() => {
-    const defaultResume = resumes.find(r => r.isDefault) || resumes[0];
-    if (defaultResume) {
-      setNewJob(prev => ({ ...prev, selectedResumeId: defaultResume.id }));
-    }
-  }, [resumes]);
 
   // Loading animation phase cycle
   useEffect(() => {
@@ -134,47 +128,39 @@ export default function DashboardSection({ onBack }: { onBack: () => void }) {
     }
   };
 
-  const submitNewJob = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newJob.company || !newJob.role) return;
-
-    // Create the job structure
-    const jobData = {
-      company: newJob.company,
-      role: newJob.role,
-      status: newJob.status,
-      url: newJob.url,
-      jobDescription: newJob.jobDescription,
-      resumeUsed: newJob.selectedResumeId,
-    };
-
+  const handleAddJobSubmit = (jobData: {
+    company: string;
+    role: string;
+    status: JobApplication['status'];
+    url: string;
+    jobDescription: string;
+    selectedResumeId: string;
+    analyzeImmediately: boolean;
+  }) => {
     // Add job to store
-    addJob(jobData);
+    addJob({
+      company: jobData.company,
+      role: jobData.role,
+      status: jobData.status,
+      url: jobData.url,
+      jobDescription: jobData.jobDescription,
+      resumeUsed: jobData.selectedResumeId,
+    });
     
     // Trigger immediate match if requested
-    if (newJob.analyzeImmediately && newJob.jobDescription) {
-      const selectedResume = resumes.find(r => r.id === newJob.selectedResumeId) || resumes.find(r => r.isDefault) || resumes[0];
+    if (jobData.analyzeImmediately && jobData.jobDescription) {
+      const selectedResume = resumes.find(r => r.id === jobData.selectedResumeId) || resumes.find(r => r.isDefault) || resumes[0];
       if (selectedResume) {
         setTimeout(() => {
           const stateJobs = useStore.getState().jobs;
           const createdJob = stateJobs[stateJobs.length - 1];
           if (createdJob) {
-            handleCompare(createdJob.id, selectedResume.content, newJob.jobDescription);
+            handleCompare(createdJob.id, selectedResume.content, jobData.jobDescription);
           }
         }, 50);
       }
     }
 
-    // Reset Form
-    setNewJob({
-      company: '',
-      role: '',
-      status: 'wishlist',
-      url: '',
-      jobDescription: '',
-      selectedResumeId: resumes.find(r => r.isDefault)?.id || resumes[0]?.id || '',
-      analyzeImmediately: false,
-    });
     setIsAddJobOpen(false);
   };
 
@@ -289,30 +275,8 @@ export default function DashboardSection({ onBack }: { onBack: () => void }) {
             <ApplicationsBoard
               jobs={jobs}
               resumes={resumes}
-              onAddJobClick={() => {
-                setNewJob({
-                  company: '',
-                  role: '',
-                  status: 'wishlist',
-                  url: '',
-                  jobDescription: '',
-                  selectedResumeId: resumes.find(r => r.isDefault)?.id || resumes[0]?.id || '',
-                  analyzeImmediately: false,
-                });
-                setIsAddJobOpen(true);
-              }}
-              onMatchClick={(job) => {
-                setEditingJob(job);
-                setNewJob({
-                  company: job.company,
-                  role: job.role,
-                  status: job.status,
-                  url: job.url || '',
-                  jobDescription: job.jobDescription || '',
-                  selectedResumeId: job.resumeUsed || resumes.find(r => r.isDefault)?.id || resumes[0]?.id || '',
-                  analyzeImmediately: true,
-                });
-              }}
+              onAddJobClick={() => setIsAddJobOpen(true)}
+              onMatchClick={(job) => setEditingJob(job)}
               onViewAnalysisClick={(jobId) => setViewingAnalysisJobId(jobId)}
               onUpdateJobStatus={(id, status) => updateJob(id, { status })}
               onDeleteJob={(id) => deleteJob(id)}
@@ -329,136 +293,12 @@ export default function DashboardSection({ onBack }: { onBack: () => void }) {
         </div>
       </main>
 
-      {/* Add Job Modal overlay */}
-      <AnimatePresence>
-        {isAddJobOpen && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl border border-[var(--border)] shadow-[var(--shadow-float)] w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]"
-            >
-              <div className="p-6 border-b border-[var(--border)] flex justify-between items-center bg-slate-50">
-                <h3 className="font-display font-extrabold text-base text-[var(--text-heading)]">
-                  {newJob.analyzeImmediately ? 'Start AI Comparison' : 'Add New Job Application'}
-                </h3>
-                <button
-                  onClick={() => setIsAddJobOpen(false)}
-                  className="text-slate-400 hover:text-slate-600 text-sm font-bold cursor-pointer"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <form onSubmit={submitNewJob} className="p-6 space-y-4 overflow-y-auto flex-1 text-xs">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block font-semibold text-[var(--text-heading)] mb-1">Company *</label>
-                    <input
-                      type="text"
-                      required
-                      value={newJob.company}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, company: e.target.value }))}
-                      placeholder="e.g. Stripe"
-                      className="w-full p-2.5 rounded-xl border border-black/10 focus:outline-none focus:border-[var(--accent)]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-semibold text-[var(--text-heading)] mb-1">Role / Title *</label>
-                    <input
-                      type="text"
-                      required
-                      value={newJob.role}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, role: e.target.value }))}
-                      placeholder="e.g. Senior Frontend Dev"
-                      className="w-full p-2.5 rounded-xl border border-black/10 focus:outline-none focus:border-[var(--accent)]"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block font-semibold text-[var(--text-heading)] mb-1">Status</label>
-                    <select
-                      value={newJob.status}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, status: e.target.value as JobApplication['status'] }))}
-                      className="w-full p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none focus:border-[var(--accent)] cursor-pointer"
-                    >
-                      <option value="wishlist">Wishlist</option>
-                      <option value="applied">Applied</option>
-                      <option value="interviewing">Interviewing</option>
-                      <option value="offer">Offer Received</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block font-semibold text-[var(--text-heading)] mb-1">Job Post URL (optional)</label>
-                    <input
-                      type="url"
-                      value={newJob.url}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, url: e.target.value }))}
-                      placeholder="https://example.com/job"
-                      className="w-full p-2.5 rounded-xl border border-black/10 focus:outline-none focus:border-[var(--accent)]"
-                    />
-                  </div>
-                </div>
-
-                {resumes.length > 0 && (
-                  <div>
-                    <label className="block font-semibold text-[var(--text-heading)] mb-1">Compare Against Resume Template</label>
-                    <select
-                      value={newJob.selectedResumeId}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, selectedResumeId: e.target.value }))}
-                      className="w-full p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none focus:border-[var(--accent)] cursor-pointer"
-                    >
-                      {resumes.map(r => (
-                        <option key={r.id} value={r.id}>
-                          {r.name} {r.isDefault ? '(Active Template)' : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block font-semibold text-[var(--text-heading)] mb-1">Job Description *</label>
-                  <textarea
-                    rows={4}
-                    required={newJob.analyzeImmediately}
-                    value={newJob.jobDescription}
-                    onChange={(e) => setNewJob(prev => ({ ...prev, jobDescription: e.target.value }))}
-                    placeholder="Paste the target job description requirements here..."
-                    className="w-full p-3 rounded-xl border border-black/10 focus:outline-none focus:border-[var(--accent)] font-mono text-[11px] leading-relaxed resize-none"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 pt-2">
-                  <input
-                    type="checkbox"
-                    id="analyzeImmediately"
-                    checked={newJob.analyzeImmediately}
-                    onChange={(e) => setNewJob(prev => ({ ...prev, analyzeImmediately: e.target.checked }))}
-                    className="w-4 h-4 rounded text-[var(--accent)] focus:ring-[var(--accent)] cursor-pointer"
-                  />
-                  <label htmlFor="analyzeImmediately" className="font-medium text-[var(--text-heading)] cursor-pointer selection:bg-transparent">
-                    Analyze matching alignment immediately via Llama AI
-                  </label>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-4 border-t border-[var(--border)]">
-                  <Button variant="outline" size="sm" type="button" onClick={() => setIsAddJobOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button variant="primary" size="sm" type="submit" disabled={resumes.length === 0 && newJob.analyzeImmediately}>
-                    {newJob.analyzeImmediately ? 'Save & Start AI Match' : 'Save Application'}
-                  </Button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <AddApplicationModal
+        isOpen={isAddJobOpen}
+        onClose={() => setIsAddJobOpen(false)}
+        resumes={resumes}
+        onSubmit={handleAddJobSubmit}
+      />
 
       {/* Edit Job Description / Match triggers from card */}
       <AnimatePresence>
@@ -492,8 +332,8 @@ export default function DashboardSection({ onBack }: { onBack: () => void }) {
                   <div>
                     <label className="block font-semibold text-[var(--text-heading)] mb-1">Compare Against Resume Template</label>
                     <select
-                      value={newJob.selectedResumeId}
-                      onChange={(e) => setNewJob(prev => ({ ...prev, selectedResumeId: e.target.value }))}
+                      value={evaluateResumeId}
+                      onChange={(e) => setEvaluateResumeId(e.target.value)}
                       className="w-full p-2.5 rounded-xl border border-black/10 bg-white focus:outline-none focus:border-[var(--accent)] cursor-pointer"
                     >
                       {resumes.map(r => (
@@ -510,8 +350,8 @@ export default function DashboardSection({ onBack }: { onBack: () => void }) {
                   <textarea
                     rows={6}
                     required
-                    value={newJob.jobDescription}
-                    onChange={(e) => setNewJob(prev => ({ ...prev, jobDescription: e.target.value }))}
+                    value={evaluateJobDescription}
+                    onChange={(e) => setEvaluateJobDescription(e.target.value)}
                     placeholder="Paste the target job description requirements here..."
                     className="w-full p-3 rounded-xl border border-black/10 focus:outline-none focus:border-[var(--accent)] font-mono text-[11px] leading-relaxed resize-none"
                   />
@@ -524,11 +364,11 @@ export default function DashboardSection({ onBack }: { onBack: () => void }) {
                   <Button
                     variant="primary"
                     size="sm"
-                    disabled={!newJob.jobDescription.trim()}
+                    disabled={!evaluateJobDescription.trim()}
                     onClick={() => {
-                      const selectedResume = resumes.find(r => r.id === newJob.selectedResumeId) || resumes.find(r => r.isDefault) || resumes[0];
+                      const selectedResume = resumes.find(r => r.id === evaluateResumeId) || resumes.find(r => r.isDefault) || resumes[0];
                       if (selectedResume && editingJob) {
-                        handleCompare(editingJob.id, selectedResume.content, newJob.jobDescription);
+                        handleCompare(editingJob.id, selectedResume.content, evaluateJobDescription);
                         setEditingJob(null);
                       }
                     }}
