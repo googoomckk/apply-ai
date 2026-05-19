@@ -146,3 +146,5 @@ ${jobDescription}
     return new Response("Not Found", { status: 404, headers });
   },
 });
+
+console.log(`Server successfully started and listening on http://localhost:${PORT}`);
