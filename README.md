@@ -1,78 +1,97 @@
 # ApplyAI 🚀
 
-> **Next-Generation, AI-Powered Career Search & Application Tracker.** 
-> A premium, high-fidelity marketing landing page engineered with React 19, Tailwind CSS v4, and decoupled Framer Motion spring physics.
+> **Full-Stack, AI-Powered Job Application Tracker & Resume Matcher.**  
+> Built with React, Zustand, Bun, Hono, and Groq (Llama-3.3-70b).
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo_Available-06B6D4?style=for-the-badge&logo=vercel&logoColor=white)](https://apply-ai-iota-three.vercel.app/)
-[![React Version](https://img.shields.io/badge/React-19.2.6-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![Tailwind Version](https://img.shields.io/badge/Tailwind_CSS-v4.0-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+ApplyAI is a full-stack, desktop-grade workspace designed to help job seekers organize their applications, manage resume templates, and leverage LLMs to optimize their CVs against target job descriptions in real-time.
 
 ---
 
-## ✨ Features & Interactive Simulators
+## ✨ Features
 
-Instead of standard, static image mockups, this landing page utilizes custom-engineered, fully-responsive CSS and SVG widgets representing advanced SaaS user experiences:
-
-*   **📊 Live Analytics Dashboard:** Track active applications, conversion rates, and weekly progress charts rendered natively.
-*   **📋 AI Resume Matcher:** Interactive interface simulating a PDF parsing scanner, outputting immediate fit metrics.
-*   **📝 Automated Follow-up Notes:** Sleek, micro-animated sticky cards highlighted by days-since-applied rules.
-*   **💼 AI Interview Prep simulator:** Conversational thread displaying questions, active response indicators, and scoring metrics.
-*   **✉️ Outreach Co-Pilot:** Instant draft composition simulator mimicking generative writing feeds.
-
----
-
-## 🎨 Design System & Animation Architecture
-
-### Decoupled Motion Presets
-To keep components focused purely on structure and markup, all Framer Motion variants are decoupled into a dedicated configuration layer at [`src/utils/animations.ts`](./src/utils/animations.ts).
-
-*   **Staggered Layout Inlets:** Containers automatically stagger the entry of child headings and buttons on page load, avoiding jarring raw animations.
-*   **Asynchronous Widget Floating:** Active floating previews desynchronize their infinite loops utilizing independent offsets and custom delays for organic hover feedback.
-*   **Viewport Scrolling triggers:** Section items gracefully fade-and-slide up only when cross-intersecting the user's viewport boundary.
+*   **📊 Applications Board**: A grid-based job application dashboard supporting full search, status filtering, link management, and custom match score badges.
+*   **📁 Resume Templates Manager**: Create, edit, and store multiple versions of your CV. Set a default template to automatically pre-populate your comparison forms.
+*   **🤖 AI Resume Match Analysis**: Compares a selected CV against a job description. Powered by the high-speed Groq Llama-3.3-70b model, it evaluates:
+    *   **Match Score & Fit Level**: Overall percentage score and fit level (e.g., *Strong Match*, *Needs Work*).
+    *   **Keyword Extraction**: Categorized list of matched and missing keywords.
+    *   **Strengths & Gaps**: Concise breakdown of how your qualifications line up.
+    *   **Actionable Rewrite Suggestions**: Direct, side-by-side bullet point edits showing *Original vs. Suggested* text with rationales.
+    *   **Interview Prep**: Dynamic, personalized questions and answering strategies based on identified gaps.
+*   **⚡ Zustand State Management**: Persists all applications, resume templates, and match history locally in the browser.
+*   **🌐 Unified Hono Backend**: A lightweight backend API powered by Hono running on Bun. It handles LLM structured outputs securely and serves the built single-file frontend static assets.
 
 ---
 
-## 🛠️ Elite Tech Stack
+## 🛠️ Tech Stack
 
-*   **Core:** React 19.2.6 & TypeScript
-*   **Bundler:** Vite 7.3.2
-*   **Styles:** Tailwind CSS v4.0 (Utilizing modern CSS-first configurations)
-*   **Icons:** Lucide React
-*   **Animations:** Framer Motion 12.38.0
+### Frontend
+*   **Core**: React 19 & TypeScript
+*   **Bundler**: Vite 7.3.2 (using `vite-plugin-singlefile` to compile all assets into one highly portable `dist/index.html`)
+*   **Styles**: Tailwind CSS v4.0 (modern CSS-first structure)
+*   **State Management**: Zustand
+*   **Icons**: Lucide React
 
-> [!NOTE]
-> **Single-File Inline Compilation:** 
-> This project is configured with `vite-plugin-singlefile`. During compilation, Vite automatically bundles all React logic, styles, and assets **directly into a single, self-contained `dist/index.html` file** in under 6 seconds. This provides unparalleled page load times, 100/100 Lighthouse performance, and effortless deployment.
+### Backend
+*   **Runtime**: Bun
+*   **Framework**: Hono Web Framework
+*   **AI Integration**: Vercel AI SDK (`ai`), `@ai-sdk/groq` provider
 
 ---
 
 ## 🚀 Getting Started
 
 ### 1. Installation
-Clone the repository and install the development dependencies:
+Clone the repository and install the dependencies:
 ```bash
-git clone https://github.com/1ewig/apply-ai.git
+git clone https://github.com/googoomckk/apply-ai.git
 cd apply-ai
-npm install
+bun install
 ```
 
-### 2. Run Locally (Dev Mode)
-Boot up Vite's local development server:
+### 2. Environment Configuration
+Create a `.env.local` file in the root directory:
 ```bash
-npm run dev
+cp .env.example .env.local
 ```
-Open [http://localhost:5173/](http://localhost:5173/) in your browser.
+Inside `.env.local`, set your Groq API Key:
+```env
+GROQ_API_KEY="your-groq-api-key-here"
+```
 
-### 3. Compilation (Production)
-Build the single-file inlined bundle:
-```bash
-npm run build
-```
-Verify the compiled, self-contained landing page at `dist/index.html`.
+### 3. Run Locally (Development Mode)
+To run in development mode, start both the frontend and backend servers:
+
+*   **Start the backend server** (listening on `http://localhost:3000`):
+    ```bash
+    bun run server.ts
+    ```
+*   **Start the frontend development server** (running on `http://localhost:5173` with Hot Module Replacement):
+    ```bash
+    bun run dev
+    ```
+
+Open `http://localhost:5173` in your browser. The frontend will automatically proxy its API calls to the Bun server on port 3000.
+
+---
+
+## 📦 Production Compilation & Hosting
+
+To compile and serve the entire application as a single-port production server:
+
+1.  **Build the single-file frontend package**:
+    ```bash
+    bun run build
+    ```
+    *This generates a single, fully self-contained `index.html` inside `/dist`.*
+
+2.  **Start the production server**:
+    ```bash
+    bun run server.ts
+    ```
+    *Hono will serve the static files from `/dist` and resolve client-side single-page app (SPA) routes, exposing the full application on `http://localhost:3000`.*
 
 ---
 
 ## 📄 License
 
-This project is open-source and available under the [MIT License](./LICENSE). Created as a showcase of high-end frontend engineering.
+This project is open-source and available under the [MIT License](./LICENSE).
