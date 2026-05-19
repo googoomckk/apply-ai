@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
 import { useReveal } from '@/hooks/useReveal';
-import SectionHeader from '../ui/SectionHeader';
-import FeatureCard from '../ui/FeatureCard';
-import KanbanPreview from '../graphics/KanbanPreview';
-import ResumeMatchWidget from '../graphics/ResumeMatchWidget';
-import AnalyticsWidget from '../graphics/AnalyticsWidget';
+import SectionHeader from './ui/SectionHeader';
+import FeatureCard from './ui/FeatureCard';
+import KanbanPreview from './graphics/KanbanPreview';
+import ResumeMatchWidget from './graphics/ResumeMatchWidget';
+import AnalyticsWidget from './graphics/AnalyticsWidget';
 import { AlertTriangle, Bot, User, Sparkles, Send } from 'lucide-react';
 import { staggerContainer, fadeInUp } from '../../utils/animations';
 

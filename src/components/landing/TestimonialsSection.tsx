@@ -1,6 +1,6 @@
 import { useReveal } from '@/hooks/useReveal';
-import SectionHeader from '../ui/SectionHeader';
-import TestimonialCard from '../ui/TestimonialCard';
+import SectionHeader from './ui/SectionHeader';
+import TestimonialCard from './ui/TestimonialCard';
 import Card from '../ui/Card';
 
 const testimonials = [

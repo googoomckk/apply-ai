@@ -1,5 +1,5 @@
 import { cn } from '@/utils/cn';
-import Badge from './Badge';
+import Badge from '../../ui/Badge';
 
 interface SectionHeaderProps {
   badge: string;

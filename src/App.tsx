@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import Navbar from './components/layout/Navbar';
-import HeroSection from './components/sections/HeroSection';
-import SolutionsSection from './components/sections/SolutionsSection';
-import FeaturesSection from './components/sections/FeaturesSection';
-import IntegrationsSection from './components/sections/IntegrationsSection';
-import TestimonialsSection from './components/sections/TestimonialsSection';
-import PricingSection from './components/sections/PricingSection';
-import CtaSection from './components/sections/CtaSection';
+import HeroSection from './components/landing/HeroSection';
+import SolutionsSection from './components/landing/SolutionsSection';
+import FeaturesSection from './components/landing/FeaturesSection';
+import IntegrationsSection from './components/landing/IntegrationsSection';
+import TestimonialsSection from './components/landing/TestimonialsSection';
+import PricingSection from './components/landing/PricingSection';
+import CtaSection from './components/landing/CtaSection';
 import Footer from './components/layout/Footer';
-import DashboardSection from './components/sections/DashboardSection';
+import DashboardSection from './components/dashboard/DashboardSection';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');

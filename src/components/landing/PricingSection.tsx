@@ -1,6 +1,6 @@
 import { useReveal } from '@/hooks/useReveal';
-import SectionHeader from '../ui/SectionHeader';
-import PricingCard from '../ui/PricingCard';
+import SectionHeader from './ui/SectionHeader';
+import PricingCard from './ui/PricingCard';
 import { Zap } from 'lucide-react';
 
 const tiers = [
