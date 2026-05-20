@@ -1,7 +1,7 @@
 # ApplyAI 🚀
 
 > **Full-Stack, AI-Powered Job Application Tracker & Resume Matcher.**  
-> Built with React, Zustand, Bun, Hono, and Groq (Llama-3.3-70b).
+> Built with React, Zustand, Python, FastAPI, and Groq (Llama-3.3-70b).
 
 ApplyAI is a full-stack, desktop-grade workspace designed to help job seekers organize their applications, manage resume templates, and leverage LLMs to optimize their CVs against target job descriptions in real-time.
 
@@ -18,7 +18,7 @@ ApplyAI is a full-stack, desktop-grade workspace designed to help job seekers or
     *   **Actionable Rewrite Suggestions**: Direct, side-by-side bullet point edits showing *Original vs. Suggested* text with rationales.
     *   **Interview Prep**: Dynamic, personalized questions and answering strategies based on identified gaps.
 *   **⚡ Zustand State Management**: Persists all applications, resume templates, and match history locally in the browser.
-*   **🌐 Unified Hono Backend**: A lightweight backend API powered by Hono running on Bun. It handles LLM structured outputs securely and serves the built single-file frontend static assets.
+*   **🌐 FastAPI Backend**: A fast and lightweight Python backend API powered by FastAPI and Uvicorn. It handles secure LLM communication with Groq using JSON Mode and serves the static production frontend assets.
 
 ---
 
@@ -32,20 +32,26 @@ ApplyAI is a full-stack, desktop-grade workspace designed to help job seekers or
 *   **Icons**: Lucide React
 
 ### Backend
-*   **Runtime**: Bun
-*   **Framework**: Hono Web Framework
-*   **AI Integration**: Vercel AI SDK (`ai`), `@ai-sdk/groq` provider
+*   **Language**: Python 3.10+
+*   **API Framework**: FastAPI
+*   **Server**: Uvicorn
+*   **AI Integration**: Groq Python SDK
 
 ---
 
 ## 🚀 Getting Started
 
 ### 1. Installation
-Clone the repository and install the dependencies:
+Clone the repository, install npm dependencies, and install Python dependencies:
 ```bash
 git clone https://github.com/googoomckk/apply-ai.git
 cd apply-ai
+
+# Install frontend dependencies
 bun install
+
+# Install backend dependencies
+pip install -r requirements.txt
 ```
 
 ### 2. Environment Configuration
@@ -61,16 +67,18 @@ GROQ_API_KEY="your-groq-api-key-here"
 ### 3. Run Locally (Development Mode)
 To run in development mode, start both the frontend and backend servers:
 
-*   **Start the backend server** (listening on `http://localhost:3000`):
+*   **Start the Python backend server** (listening on `http://localhost:3000`):
     ```bash
-    bun run server.ts
+    python server.py
     ```
+    *(Alternatively, run `bun run server` to start the python server via package script)*
+
 *   **Start the frontend development server** (running on `http://localhost:5173` with Hot Module Replacement):
     ```bash
     bun run dev
     ```
 
-Open `http://localhost:5173` in your browser. The frontend will automatically proxy its API calls to the Bun server on port 3000.
+Open `http://localhost:5173` in your browser. The frontend will automatically proxy its API calls to the Python server on port 3000.
 
 ---
 
@@ -86,9 +94,9 @@ To compile and serve the entire application as a single-port production server:
 
 2.  **Start the production server**:
     ```bash
-    bun run server.ts
+    python server.py
     ```
-    *Hono will serve the static files from `/dist` and resolve client-side single-page app (SPA) routes, exposing the full application on `http://localhost:3000`.*
+    *FastAPI will serve the static files from `/dist` and resolve client-side single-page app (SPA) routes, exposing the full application on `http://localhost:3000`.*
 
 ---
 

@@ -39,3 +39,12 @@ Thumbs.db
 # Personal portfolio planning and blueprints
 UPWORK_PORTFOLIO_PLAN.md
 CASE_STUDY_APPLYAI.md
+
+# Python files
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/

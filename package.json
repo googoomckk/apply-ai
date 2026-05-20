@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "bun run server.ts"
+    "server": "python server.py"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.39",
